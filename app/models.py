@@ -24,14 +24,15 @@ class User(db.Model):
     profile_photo=db.column(db.String(255))
     joined_on = db.Column(db.DateTime, server_default=func.now())
 
-    def __init__(self, username, password, firstname, lastname, email, location, biography):
-        now=datetime.datetime.now()
+    def __init__(self, username, password, firstname, lastname, email, location, biography, profile_photo):
+        #now=datetime.datetime.now()
         self.firstname = firstname
         self.lastname = lastname
         self.username = username
         self.email= email
         self.location= location
         self.biography = biography
+        self.profile_photo=profile_photo
         self.password = generate_password_hash(password, method='pbkdf2:sha256')
     
 
