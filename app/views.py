@@ -77,7 +77,7 @@ def get_csrf():
 def register():
     form=RegistrationForm()
 
-    if request.method=='POST' :#and form.validate_on_submit():
+    if request.method=='POST' and form.validate_on_submit():
         username=form.username.data
         password=form.password.data
         firstname=form.firstname.data
