@@ -5,9 +5,16 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
+from app import app, db
 from flask import render_template, request, jsonify, send_file
 import os
+from .forms import LoginForm, RegistrationForm
+from wtforms.validators import DataRequired
+from.models import User, Likes, Follows, Posts
+from werkzeug.utils import secure_filename
+import traceback
+
+
 
 
 ###
@@ -61,3 +68,41 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
+@app.route('/api/v1/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
+
+@app.route('/api/v1/register', methods=['POST'])
+def register():
+    form=RegistrationForm()
+
+    if request.method=='POST' :#and form.validate_on_submit():
+        username=form.username.data
+        password=form.password.data
+        firstname=form.firstname.data
+        lastname=form.lastname.data
+        email=form.email.data
+        location=form.location.data
+        biography=form.biography.data
+        photo=form.profile_pic.data
+
+        file = photo 
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        try:
+            user=User(username, password, firstname, lastname, email, location, biography,filename)
+            db.session.add(user)
+            db.session.commit()
+        except:
+            traceback.print_exc()
+            error=form_errors(form)
+            return jsonify(error=error)
+
+        user=[{"firstname":firstname,"lastname":lastname,"username":username, "password":password, "email":email, "location":location, "biography":biography, "profile_photo":filename  }]
+        return jsonify(user=user)
+
+    else:
+        error=form_errors(form)
+        return jsonify(error=error)
