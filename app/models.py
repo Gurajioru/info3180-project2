@@ -16,12 +16,12 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(80))
     password = db.Column(db.String(255))
-    firstname = db.column(db.String(80))
-    lastname= db.column(db.String(80))
-    email= db.column(db.String(100))
-    location= db.column(db.String(150))
-    biography= db.column(db.String(255))
-    profile_photo=db.column(db.String(255))
+    firstname = db.Column(db.String(80))
+    lastname= db.Column(db.String(80))
+    email= db.Column(db.String(100))
+    location= db.Column(db.String(150))
+    biography= db.Column(db.String(255))
+    profile_photo=db.Column(db.String(255))
     joined_on = db.Column(db.DateTime, server_default=func.now())
 
     def __init__(self, username, password, firstname, lastname, email, location, biography, profile_photo):
@@ -61,7 +61,7 @@ class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     caption = db.Column(db.String(100))
     photo = db.Column(db.String(255))
-    user_id = db.column(db.Integer)
+    user_id = db.Column(db.Integer)
     db.Column(db.DateTime, server_default=func.now())
 
     def __init__(self, caption, photo, user_id):
@@ -78,8 +78,8 @@ class Likes(db.Model):
     __tablename__ = 'likes'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    post_id=db.column(db.Integer)
-    user_id=db.column(db.Integer)
+    post_id=db.Column(db.Integer)
+    user_id=db.Column(db.Integer)
 
     def __init__(self, post_id, user_id):
         self.post_id=post_id
@@ -94,8 +94,8 @@ class Follows(db.Model):
     __tablename__ = 'follows'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    follower_id=db.column(db.Integer)
-    user_id=db.column(db.Integer)
+    follower_id=db.Column(db.Integer)
+    user_id=db.Column(db.Integer)
 
     def __init__(self, post_id, user_id):
         self.user_id=post_id
