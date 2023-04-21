@@ -15,8 +15,55 @@ from werkzeug.utils import secure_filename
 import traceback
 from werkzeug.security import check_password_hash
 from flask_login import login_user, logout_user, current_user, login_required
+from flask import render_template, request, jsonify, send_file, send_from_directory
+import jwt
+from datetime import datetime, timedelta
+from time import time
+
+def requires_auth(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    auth = request.headers.get('Authorization', None) # or request.cookies.get('token', None)
+
+    if not auth:
+      return jsonify({'code': 'authorization_header_missing', 'description': 'Authorization header is expected'}), 401
+
+    parts = auth.split()
+
+    if parts[0].lower() != 'bearer':
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}), 401
+    elif len(parts) == 1:
+      return jsonify({'code': 'invalid_header', 'description': 'Token not found'}), 401
+    elif len(parts) > 2:
+      return jsonify({'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}), 401
+
+    token = parts[1]
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'code': 'token_expired', 'description': 'token is expired'}), 401
+    except jwt.DecodeError:
+        return jsonify({'code': 'token_invalid_signature', 'description': 'Token signature is invalid'}), 401
+
+    g.current_user = user = payload
+    return f(*args, **kwargs)
+
+  return decorated
 
 
+
+def generate_token(username, password):
+    timestamp = datetime.utcnow()
+    payload = {
+        "username": username,
+        "password": password,
+        "exp": timestamp + timedelta(minutes=180)
+    }
+
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+
+    return token
 
 
 
@@ -103,7 +150,7 @@ def register():
             error=form_errors(form)
             return jsonify(error=error)
 
-        user=[{"firstname":firstname,"lastname":lastname,"username":username, "password":password, "email":email, "location":location, "biography":biography, "profile_photo":filename  }]
+        user=[{ "message": "User successfully registered", "firstname":firstname,"lastname":lastname,"username":username, "password":password, "email":email, "location":location, "biography":biography, "profile_photo":filename  }]
         return jsonify(user=user)
 
     else:
@@ -123,15 +170,22 @@ def login():
         if user is not None and check_password_hash(user.password, password):
 
                 login_user(user)
+                token = generate_token(username,password)
+                response=[{"token": token, "message": "User successfully logged in"}]
 
-                logged_user=[{"username": username, "password": password}]
 
 
-
-                return jsonify(logged_user)
+                return jsonify(response=response)
         else:
-            error=form_errors(form)
-            return jsonify(error=error)
+            failure={"Error": "Could not validate user"}
+            return jsonify(failure=failure)
+            
+    error=form_errors(form)
+    return jsonify(error=error)
 
-    failure=[{"Error": "Could not validate user"}]
-    return jsonify(failur=failure)
+    
+
+
+@app.route("/api/v1/images/<path:filename>")
+def getImage(filename):
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
