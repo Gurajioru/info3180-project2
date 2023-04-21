@@ -6,7 +6,7 @@ This file creates your application.
 """
 
 from app import app, db
-from flask import render_template, request, jsonify, send_file
+from flask import render_template, request, jsonify, send_file, g
 import os
 from .forms import LoginForm, RegistrationForm, PostForm
 from wtforms.validators import DataRequired
@@ -17,8 +17,10 @@ from werkzeug.security import check_password_hash
 from flask_login import login_user, logout_user, current_user, login_required
 from flask import render_template, request, jsonify, send_file, send_from_directory
 import jwt
+from functools import wraps
 from datetime import datetime, timedelta
 from time import time
+
 
 def requires_auth(f):
   @wraps(f)
@@ -53,9 +55,10 @@ def requires_auth(f):
 
 
 
-def generate_token(username, password):
+def generate_token(username, password, id):
     timestamp = datetime.utcnow()
     payload = {
+        "user_id":id,
         "username": username,
         "password": password,
         "exp": timestamp + timedelta(minutes=180)
@@ -161,7 +164,7 @@ def register():
 @app.route('/api/v1/auth/login', methods=['POST'])
 def login():
     form=LoginForm()
-    if form.validate_on_submit:
+    if request.method=='POST' and form.validate_on_submit():
         username=form.username.data
         password=form.password.data
 
@@ -170,12 +173,12 @@ def login():
         if user is not None and check_password_hash(user.password, password):
 
                 login_user(user)
-                token = generate_token(username,password)
+                token = generate_token(username,password, user.id)
                 response=[{"token": token, "message": "User successfully logged in"}]
 
 
 
-                return jsonify(response=response)
+                return jsonify(response=response), 200
         else:
             failure={"Error": "Could not validate user"}
             return jsonify(failure=failure)
@@ -184,8 +187,45 @@ def login():
     return jsonify(error=error)
 
     
+@app.route('/api/v1/auth/logout', methods=['POST'])
+def logout():
+    response ={"message": "User successfully logged out"}
+    return jsonify(response=response), 200
 
-
-@app.route("/api/v1/images/<path:filename>")
+@app.route("/api/v1/images/<filename>")
 def getImage(filename):
     return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
+
+
+
+@app.route('/api/v1/users/<user_id>/posts', methods=['POST'])
+@requires_auth
+def add_post(user_id):
+    form = PostForm()
+    if request.method=='POST' and form.validate_on_submit():
+        photo=form.picture.data
+        caption = form.caption.data
+
+        file = photo 
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        try:
+            post=Posts(caption,filename, user_id)
+            db.session.add(post)
+            db.session.commit()
+        except:
+            traceback.print_exc()
+            error={"message":"Failed to add to database"}
+            return jsonify(error=error)
+
+        user={"message": "Successfully created a new post"}
+        return jsonify(user=user)
+
+    else:
+        error=form_errors(form)
+        return jsonify(error=error)
+
+
+
+
