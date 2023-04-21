@@ -8,11 +8,14 @@ This file creates your application.
 from app import app, db
 from flask import render_template, request, jsonify, send_file
 import os
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, PostForm
 from wtforms.validators import DataRequired
 from.models import User, Likes, Follows, Posts
 from werkzeug.utils import secure_filename
 import traceback
+from werkzeug.security import check_password_hash
+from flask_login import login_user, logout_user, current_user, login_required
+
 
 
 
@@ -106,3 +109,29 @@ def register():
     else:
         error=form_errors(form)
         return jsonify(error=error)
+
+
+@app.route('/api/v1/auth/login', methods=['POST'])
+def login():
+    form=LoginForm()
+    if form.validate_on_submit:
+        username=form.username.data
+        password=form.password.data
+
+        user = db.session.execute(db.select(User).filter_by(username=username)).scalar()
+
+        if user is not None and check_password_hash(user.password, password):
+
+                login_user(user)
+
+                logged_user=[{"username": username, "password": password}]
+
+
+
+                return jsonify(logged_user)
+        else:
+            error=form_errors(form)
+            return jsonify(error=error)
+
+    failure=[{"Error": "Could not validate user"}]
+    return jsonify(failur=failure)
