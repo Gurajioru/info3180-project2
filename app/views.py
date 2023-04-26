@@ -192,6 +192,39 @@ def login():
 def getImage(filename):
     return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
 
+# Get all posts for all users
+@app.route('/api/v1/posts', methods=['GET'])
+def get_all_posts():
+    posts = Posts.query.all()
+    return jsonify([post.serialize() for post in posts])
+# Get a user's posts
+@app.route('/api/v1/users/<int:user_id>/posts', methods=['GET'])
+def get_user_posts(user_id):
+    posts = Posts.query.filter_by(user_id=user_id).all()
+    return jsonify([post.serialize() for post in posts])
+
+@app.route('/api/v1/users/<int:user_id>/follow', methods=['POST'])
+def follow_user(user_id):
+    target_user = User.query.filter_by(id=user_id).first()
+    if not target_user:
+        return jsonify({'error': 'User not found.'}), 404
+
+    current_user_id = db.session.get('user_id')
+    if not current_user_id:
+        return jsonify({'error': 'You must be logged in to follow a user.'}), 401
+
+    if current_user_id == user_id:
+        return jsonify({'error': 'You cannot follow yourself.'}), 400
+
+    follow_relationship = Follows.query.filter_by(user_id=user_id, follower_id=current_user_id).first()
+    if follow_relationship:
+        return jsonify({'error': 'Already following this user.'}), 400
+
+    follow = Follows(user_id=user_id, follower_id=current_user_id)
+    db.session.add(follow)
+    db.session.commit()
+
+    return jsonify(follow), 201
 
 
 @app.route('/api/v1/users/<user_id>/posts', methods=['POST'])
