@@ -69,6 +69,14 @@ class Posts(db.Model):
         self.photo=photo
         self.user_id=user_id
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'caption': self.caption,
+            'photo': self.photo,
+            'user_id': self.user_id,
+        }
+
 
 class Likes(db.Model):
     # You can use this to change the table name. The default convention is to use
