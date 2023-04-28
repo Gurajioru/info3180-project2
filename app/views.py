@@ -20,7 +20,7 @@ import jwt
 from functools import wraps
 from datetime import datetime, timedelta
 from time import time
-
+from flask_wtf.csrf import generate_csrf
 
 def requires_auth(f):
   @wraps(f)
@@ -176,9 +176,9 @@ def login():
                 token = generate_token(username,password, user.id)
                 response=[{"token": token, "message": "User successfully logged in"}]
 
+                response_headers = {'X-CSRF-Token': generate_csrf()}
 
-
-                return jsonify(response=response), 200
+                return jsonify(response=response), 200, response_headers
         else:
             failure={"Error": "Could not validate user"}
             return jsonify(failure=failure)
