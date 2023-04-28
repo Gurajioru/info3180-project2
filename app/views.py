@@ -21,6 +21,10 @@ from functools import wraps
 from datetime import datetime, timedelta
 from time import time
 from flask_wtf.csrf import generate_csrf
+<<<<<<< HEAD
+=======
+
+>>>>>>> 330664296e96450bb7b6a470ff844d32d05f6fd2
 
 def requires_auth(f):
   @wraps(f)
