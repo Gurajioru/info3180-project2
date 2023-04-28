@@ -21,10 +21,6 @@ from functools import wraps
 from datetime import datetime, timedelta
 from time import time
 from flask_wtf.csrf import generate_csrf
-<<<<<<< HEAD
-=======
-
->>>>>>> 330664296e96450bb7b6a470ff844d32d05f6fd2
 
 def requires_auth(f):
   @wraps(f)
@@ -213,7 +209,7 @@ def follow_user(user_id):
     if not target_user:
         return jsonify({'error': 'User not found.'}), 404
 
-    current_user_id = db.session.get('user_id')
+    current_user_id = current_user.id
     if not current_user_id:
         return jsonify({'error': 'You must be logged in to follow a user.'}), 401
 
@@ -229,6 +225,24 @@ def follow_user(user_id):
     db.session.commit()
 
     return jsonify(follow), 201
+
+@app.route('/api/v1/posts/<int:post_id>/like', methods=['POST'])
+@login_required
+def like_post(post_id):
+    current_user_id = current_user.id
+    post = Posts.query.filter_by(id=post_id).first()
+    if not post:
+        return jsonify({'error': 'Post not found.'}), 404
+
+    like = Likes.query.filter_by(post_id=post_id, user_id=current_user_id).first()
+    if like:
+        return jsonify({'error': 'You have already liked this post.'}), 400
+
+    new_like = Likes(post_id=post_id, user_id=current_user_id)
+    db.session.add(new_like)
+    db.session.commit()
+
+    return jsonify({'message': 'Like created successfully.'}), 201
 
 
 @app.route('/api/v1/users/<user_id>/posts', methods=['POST'])
