@@ -12,11 +12,37 @@
 </template>
 
 <script setup>
+
+
+  import { ref, onMounted } from "vue";
+
+  onMounted(() => {
+    getCsrfToken()
+  });
+
+  let csrf_token = ref("");
+
+    function getCsrfToken(){
+
+        fetch('/ap1/v1/csrf-token')
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                csrf_token.value = data.csrf_token;
+            })
+    }
      
     function savePost(){
 
+        let PostForm = document.getElementById('PostForm');
+        let form_data = new FormData(PostForm)
+
         fetch("api/v1/users/<user_id>/posts",{
-            method:'POST'
+            method:'POST',
+            body: form_data,
+            headers: {
+                'X-CSRFToken': csrf_token.value
+            }
         })
             .then(function (response) {
                 return response.json();
@@ -66,6 +92,6 @@ export default {
       .catch(error => {
         console.error('Error obtaining JWT token: ', error);
       });
-  }
+     }
 };
 </script>

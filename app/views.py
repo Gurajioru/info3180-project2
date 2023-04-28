@@ -20,6 +20,7 @@ import jwt
 from functools import wraps
 from datetime import datetime, timedelta
 from time import time
+from flask_wtf.csrf import generate_csrf
 
 
 def requires_auth(f):
