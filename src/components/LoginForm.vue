@@ -79,7 +79,7 @@ import { ref, onMounted  } from "vue";
         height: 40px;
         border-radius: 5px;
         border: none;
-        background-color: #3204b1;
+        background-color: ##3de909;
         color: white;
     }
 </style>
