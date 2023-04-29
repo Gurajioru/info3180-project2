@@ -23,7 +23,7 @@ from time import time
 from flask_wtf.csrf import generate_csrf
 
 def requires_auth(f):
-  @wraps(f)
+      @wraps(f)
   def decorated(*args, **kwargs):
     auth = request.headers.get('Authorization', None) # or request.cookies.get('token', None)
 
@@ -52,6 +52,7 @@ def requires_auth(f):
     return f(*args, **kwargs)
 
   return decorated
+
 
 
 
