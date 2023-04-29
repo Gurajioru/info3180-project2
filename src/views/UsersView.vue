@@ -1,5 +1,44 @@
+<script setup>
+    import { ref, onMounted } from "vue";
+    import { useRoute } from "vue-router";
+
+    const route = useRoute();
+    
+    let user = ref(null);
+    let posts = ref(null);
+    let lenPosts = ref(null);
+
+    onMounted(() =>{
+    
+    fetch("/api/v1/usersp/" + route.params.id)
+    .then((response) => response.json())
+    .then((data) => {
+        //console.log(data)
+        user.value = data[0];
+        posts.value = user.value.posts;
+        lenPosts = posts.value.length;
+        
+        console.log(user.value);
+
+        // ADD FOLLOW IMPLEMENTATION
+           
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+});
+
+function getProfilePhotoUrl(filename) {
+  return "/uploads/" + filename;
+}
+
+
+</script>
+
+
 <template>
-  <div class="container">
+  <div class="container" v-if="user && posts">
+  
     <div class="userinfo">
       <div class="photo">
         <img :src="getProfilePhotoUrl(user.profile_photo)" alt="Profile Photo" style="max-width: 150px; max-height: 150px;">
@@ -37,49 +76,6 @@
   </div>
 
 </template>
-
-
-<script setup>
-    import { ref, onMounted } from "vue";
-    import { useRoute } from "vue-router";
-
-    const route = useRoute();
-    
-    let user = ref(null);
-    let posts = ref(null);
-    let lenPosts = ref(null);
-
-    function fetchUsers(){
-    fetch("/api/v1/usersp/" + route.params.id)
-    .then((response) => response.json())
-    .then((data) => {
-        console.log(data)
-        user = data[0];
-        posts = user.posts;
-        lenPosts = posts.length;
-        
-        console.log(posts, posts.length);
-
-        // ADD FOLLOW IMPLEMENTATION
-        
-        
-    })
-    .catch((error) => {
-        console.log(error);
-    });
-
-
-}
-
-function getProfilePhotoUrl(filename) {
-  return "/uploads/" + filename;
-}
-
-onMounted(() => {
-  fetchUsers();
-});
-
-</script>
 
 <style>
   .container {

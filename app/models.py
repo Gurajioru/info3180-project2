@@ -67,10 +67,11 @@ class Posts(db.Model):
     user_id = db.Column(db.Integer)
     created_on=db.Column(db.DateTime, server_default=func.now())
 
-    def __init__(self, caption, photo, user_id):
+    def __init__(self, caption, photo, user_id, created_on):
         self.caption = caption
         self.photo=photo
         self.user_id=user_id
+        self.created_on=created_on
 
     def serialize(self):
         return {
@@ -78,6 +79,7 @@ class Posts(db.Model):
             'caption': self.caption,
             'photo': self.photo,
             'user_id': self.user_id,
+            'created_on': self.created_on
         }
 
 

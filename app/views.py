@@ -207,14 +207,50 @@ def get_user_posts(user_id):
     posts = Posts.query.filter_by(user_id=user_id).all()
     return jsonify([post.serialize() for post in posts])
 
+# Get all users
+@app.route('/api/v1/users', methods=['GET'])
+def get_all_users():
+    users = db.session.execute(db.select(User)).scalars()
+    response = []
+    if users is None:
+        return jsonify(error="No users found")
+    else:
+        for user in users:
+            response.append({
+                "id": user.id,
+                "username": user.username,
+                "firstname": user.firstname,
+                "lastname": user.lastname,
+                "email": user.email,
+                "location": user.location,
+                "biography": user.biography,
+                "profile_photo": user.profile_photo
+            })
+        return jsonify(response=response)
+
+@app.route('/api/v1/likes', methods=['GET'])
+def get_post_likes():
+    likes = db.session.execute(db.select(Likes)).scalars()
+    response = []
+    if likes is None:
+        return jsonify(error="No likes found")
+    else:
+        for like in likes:
+            response.append({
+                "id": like.id,
+                "user_id": like.user_id,
+                "post_id": like.post_id
+            })
+        return jsonify(response=response)
+
+
+
 @app.route('/api/v1/usersp/<int:user_id>', methods=['GET'])
 def get_user_info(user_id):
     users = db.session.execute(db.select(User).filter_by(id=user_id)).scalars()
     posts = db.session.execute(db.select(Posts).where(Posts.user_id == user_id)).scalars()
     follows = db.session.execute(db.select(Follows).where(Follows.user_id == user_id)).scalars()
     followers_count = sum(1 for _ in follows)
-    
-
     user = []
 
     if users is None:
@@ -323,6 +359,9 @@ def add_post(user_id):
     else:
         error=form_errors(form)
         return jsonify(error=error)
+    
+
+    
 
 
 
