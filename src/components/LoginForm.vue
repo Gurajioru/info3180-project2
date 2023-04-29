@@ -1,65 +1,85 @@
 <template>
-  <div>
-    <h2>Login</h2>
-    <form @submit.prevent="loginUser">
-      <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" name="username" v-model="data.username" required>
+  <div class="container-fluid">
+    <div class="l_form">
+      <h2>Login</h2>
+        <form @submit.prevent="loginUser" id="LoginForm">
+          <div class="form-group">
+            <label for="username" class="form-label">Username:</label>
+            <input id="first-field" type="text" name="username" class="form-check" required/>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Password:</label>
+            <input id="second-field" type="password" name="password" class="form-check" required>
+          </div>
+
+          <br>
+
+          <input id="btn" type="submit" value="Login">
+        </form>
       </div>
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" name="password" v-model="data.password" required>
-      </div>
-      <button type="submit">Login</button>
-    </form>
-  </div>
+    </div>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
-
-const data = reactive({
-  username: '',
-  password: ''
-});
-
-const csrf_token = ref('');
-
-onMounted(() => {
-  getCsrfToken();
-});
-
-function getCsrfToken() {
-  fetch('/api/v1/csrf-token')
-    .then(response => response.json())
-    .then(data => {
-      csrf_token.value = data.csrf_token;
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // display an error message to the user
+import { ref, onMounted  } from "vue";
+    let csrf_token = ref("");
+    onMounted(() => {
+        getCsrfToken();
     });
-}
-
-const loginUser = () => {
-  fetch('/api/v1/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrf_token.value
-      },
-      body: JSON.stringify({
-        username: data.username,
-        password: data.password
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      // handle the response data
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // display an error message to the user
-    });
-};
+    function loginUser()
+    {
+        let loginForm = document.getElementById("LoginForm");
+        let form_data = new FormData(loginForm);
+            fetch("/api/v1/auth/login", {
+                method: 'POST',
+                body: form_data,
+                headers: 
+                {
+                    'X-CSRFToken': csrf_token.value
+                }
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+    }
+    function getCsrfToken() 
+    {
+        fetch('/api/v1/csrf-token')
+            .then((response) => response.json())
+                .then((data) => {
+                    console.log(data.csrf_token);
+                    csrf_token.value = data.csrf_token;
+        })
+    }
 </script>
+
+
+<style>
+    .l_form{
+        width: 400px;
+    }
+    .container-fluid{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    form{
+        padding: 2em;
+        box-shadow: 3px 3px 3px rgb(191, 197, 199);
+        border-radius: 5px;
+        border: 2px solid rgb(191, 197, 199);
+        background-color: rgb(244, 242, 242);
+    }
+    #btn{
+        width: 100%;
+        height: 40px;
+        border-radius: 5px;
+        border: none;
+        background-color: #3204b1;
+        color: white;
+    }
+</style>
