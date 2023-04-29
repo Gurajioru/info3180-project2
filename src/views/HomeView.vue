@@ -1,19 +1,112 @@
 <script setup>
 import { ref } from "vue";
-
 let message = ref("Hello World! This is a VueJS and Flask Starter Template.")
-
 </script>
 
 <template>
     <div class="container">
-      <div class="text-center">
-        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-        <h1>{{ message }}</h1>
+      <div class="contain">
+        <div class="center">
+          <img :src="`/uploads/uyuni.jpg`" alt="Photogram" class="uyuni"/>
+          <div class="secondary">
+            <div class="together">
+              <img :src="`/uploads/camera.png`" alt="Photogram" class="camera"/>
+              <h2 class="title">Photogram</h2>
+            </div>
+            
+            <hr>
+
+            <div class="text">
+              <h4>Share photos of your favorite moments with friends, family and the world.</h4>
+            </div>
+
+            <br>
+            <br>
+            <br>
+
+            <div class="buttons">
+              <a href="http://localhost:5173/register" class="btn1">Register</a>
+              <a href="http://localhost:5173/login" class="btn2">Login</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 </template>
 
 <style>
-/* Add any component specific styles here */
+  .btn1{
+    background-color: #3ec93e;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    height: 50px;
+    width: 200px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+  }
+  .btn2{
+    background-color: #6379f7;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    height: 50px;
+    width: 200px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    text-decoration: none;
+  }
+  .buttons{
+    display: grid;
+    grid-template-columns: 210px 210px;
+    justify-content: center;
+  }
+  .camera{
+    margin-right: 30px;
+    width: 30px;
+    height: 30px;
+  }
+  
+  .together{
+    display: flex;
+    justify-content: center;
+  }
+  .center{
+    display: grid;
+    grid-template-columns: 600px 600px;
+    width: 810px;
+    position: absolute;
+    top: 22.5%;
+    left: 10.25%;
+  }
+  .uyuni{
+    width: 500px;
+    height: 400px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px rgb(191, 197, 199);
+  }
+  hr{
+    /* width: 75%; */
+  }
+  .secondary{
+    width: 600px;
+    height: 400px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px rgb(191, 197, 199);
+    border: 2px solid rgb(191, 197, 199);
+    padding: 30px;
+    background-color: rgb(244, 242, 242);
+  }
+  .contain{
+    width: 1300px;
+    height: 600px;
+  }
+  
+  .title{
+    font-family: Lucida Handwriting;
+    font-weight: 900;
+  }
 </style>
