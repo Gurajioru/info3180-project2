@@ -26,7 +26,7 @@ from flask_login import UserMixin
 
 
 def requires_auth(f):
-      @wraps(f)
+  @wraps(f)
   def decorated(*args, **kwargs):
     auth = request.headers.get('Authorization', None) # or request.cookies.get('token', None)
 
@@ -206,6 +206,47 @@ def get_all_posts():
 def get_user_posts(user_id):
     posts = Posts.query.filter_by(user_id=user_id).all()
     return jsonify([post.serialize() for post in posts])
+
+@app.route('/api/v1/usersp/<int:user_id>', methods=['GET'])
+def get_user_info(user_id):
+    users = db.session.execute(db.select(User).filter_by(id=user_id)).scalars()
+    posts = db.session.execute(db.select(Posts).where(Posts.user_id == user_id)).scalars()
+    follows = db.session.execute(db.select(Follows).where(Follows.user_id == user_id)).scalars()
+    followers_count = sum(1 for _ in follows)
+    
+
+    user = []
+
+    if users is None:
+        return jsonify(error="User not found")
+    else:
+        for u in users:
+
+            user.append({
+                "id": u.id,
+                "username": u.username,
+                "firstname": u.firstname,
+                "lastname": u.lastname,
+                "email": u.email,
+                "location": u.location,
+                "biography": u.biography,
+                "profile_photo": u.profile_photo,
+                "joined_on": u.joined_on,
+                "followers": followers_count ,
+                "posts": []
+                
+
+            })
+            for post in posts:
+                user[-1]["posts"].append({
+                    "id": post.id,
+                    "user_id": post.user_id,
+                    "photo": post.photo,
+                    "caption": post.caption,
+                    "created_on": post.created_on
+                })
+            
+    return jsonify(user)
 
 @login_manager.user_loader
 def load_user(id):

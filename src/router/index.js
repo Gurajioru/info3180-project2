@@ -19,6 +19,11 @@ const router = createRouter({
     },
     {
       component: () => import('../views/AddPostForm.vue')
+    },
+    {
+      path: '/usersp/:id',
+      name: 'Users',
+      component: () => import('../views/UsersView.vue')
     }
   ]
 })
