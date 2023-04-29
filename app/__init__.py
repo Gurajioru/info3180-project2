@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from .config import Config
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin
 from flask_wtf.csrf import CSRFProtect
 
 

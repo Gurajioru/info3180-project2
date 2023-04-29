@@ -50,6 +50,9 @@ class User(db.Model):
             return unicode(self.id)  # python 2 support
         except NameError:
             return str(self.id)  # python 3 support
+        
+    def __repr__(self):
+        return '<User %r>' % (self.username)
 
 class Posts(db.Model):
     # You can use this to change the table name. The default convention is to use
@@ -105,6 +108,6 @@ class Follows(db.Model):
     follower_id=db.Column(db.Integer)
     user_id=db.Column(db.Integer)
 
-    def __init__(self, post_id, user_id):
-        self.user_id=post_id
-        self.follower_id=user_id
+    def __init__(self, follower_id, user_id):
+        self.follower_id = follower_id
+        self.user_id = user_id

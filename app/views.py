@@ -5,7 +5,7 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app, db
+from app import app, db, login_manager
 from flask import render_template, request, jsonify, send_file, g
 import os
 from .forms import LoginForm, RegistrationForm, PostForm
@@ -14,13 +14,16 @@ from.models import User, Likes, Follows, Posts
 from werkzeug.utils import secure_filename
 import traceback
 from werkzeug.security import check_password_hash
-from flask_login import login_user, logout_user, current_user, login_required
+from flask_login import login_user, logout_user, current_user, login_required,LoginManager
 from flask import render_template, request, jsonify, send_file, send_from_directory
 import jwt
 from functools import wraps
 from datetime import datetime, timedelta
 from time import time
 from flask_wtf.csrf import generate_csrf
+from flask_login import UserMixin
+
+
 
 def requires_auth(f):
   @wraps(f)
@@ -176,9 +179,9 @@ def login():
                 token = generate_token(username,password, user.id)
                 response=[{"token": token, "message": "User successfully logged in"}]
 
-                response_headers = {'X-CSRF-Token': generate_csrf()}
+                headers = {'X-CSRF-Token': generate_csrf()}
 
-                return jsonify(response=response), 200, response_headers
+                return jsonify(response=response), 200, headers
         else:
             failure={"Error": "Could not validate user"}
             return jsonify(failure=failure)
@@ -203,13 +206,18 @@ def get_user_posts(user_id):
     posts = Posts.query.filter_by(user_id=user_id).all()
     return jsonify([post.serialize() for post in posts])
 
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
 @app.route('/api/v1/users/<int:user_id>/follow', methods=['POST'])
 def follow_user(user_id):
     target_user = User.query.filter_by(id=user_id).first()
     if not target_user:
         return jsonify({'error': 'User not found.'}), 404
 
-    current_user_id = current_user.id
+    if current_user.is_authenticated:
+        current_user_id = current_user.get_id()
     if not current_user_id:
         return jsonify({'error': 'You must be logged in to follow a user.'}), 401
 
@@ -223,13 +231,14 @@ def follow_user(user_id):
     follow = Follows(user_id=user_id, follower_id=current_user_id)
     db.session.add(follow)
     db.session.commit()
+    follow_dict = {'id': follow.id, 'user_id': follow.user_id, 'follower_id': follow.follower_id}
+    return jsonify(follow_dict), 201
 
-    return jsonify(follow), 201
 
 @app.route('/api/v1/posts/<int:post_id>/like', methods=['POST'])
 @login_required
 def like_post(post_id):
-    current_user_id = current_user.id
+    current_user_id = current_user.get_id()
     post = Posts.query.filter_by(id=post_id).first()
     if not post:
         return jsonify({'error': 'Post not found.'}), 404
