@@ -1,93 +1,136 @@
 <template>
-  <form @submit.prevent="saveEntry" id="RegistrationForm" enctype="multipart/form-data" method="post">
-    <div class="form-group mb-3">
-      <label for="username" class="form-label">Username</label>
-      <input type="username" name="username" v-model="username" class="form-control" />
+  <div class="container-fluid">
+    <div class="reg_form">
+        <h3>Register</h3>
+        <form @submit.prevent="saveEntry" id="RegistrationForm">
+            <div class="entry">
+                <label for="username" class="form-label">Username</label>
+                <input id="first-field" type="text" name="username" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <label for="password" class="form-label">Password</label>
+                <input id="second-field" type="password" name="password" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <label for="firstname" class="form-label">Firstname</label>
+                <input id="third-field" type="text" name="firstname" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <label for="lastname" class="form-label">Lastname</label>
+                <input id="fourth-field" type="text" name="lastname" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <label for="email" class="form-label">Email</label>
+                <input id="fifth-field" type="text" name="email" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <label for="location" class="form-label">Location</label>
+                <input id="sixth-field" type="text" name="location" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <label for="biography" class="form-label">Biography</label>
+                <input id="seventh-field" type="text" name="biography" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <label for="photo" class="form-label">Photo</label>
+                <input id="eighth-field" type="file" name="photo" class="form-check" />
+            </div>
+
+            <br>
+
+            <div class="entry">
+                <input id="btn" type="submit" value="Register">
+            </div>
+        </form>
     </div>
-    <div class="form-group mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" name="password" v-model="password" class="form-control" />
-    </div>
-    <div class="form-group mb-3">
-      <label for="first-name" class="form-label">First Name</label>
-      <input type="text" name="first-name" v-model="firstName" class="form-control" />
-    </div>
-    <div class="form-group mb-3">
-      <label for="last-name" class="form-label">Last Name</label>
-      <input type="text" name="last-name" v-model="lastName" class="form-control" />
-    </div>
-    <div class="form-group mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input type="text" name="email" v-model="email" class="form-control" />
-    </div>
-    <div class="form-group mb-3">
-      <label for="location" class="form-label">Location</label>
-      <input type="text" name="location" v-model="location" class="form-control" />
-    </div>
-    <div class="form-group mb-3">
-      <label for="biography" class="form-label">Biography</label>
-      <textarea name="biography" v-model="biography" class="form-control"></textarea>
-    </div>
-    <div class="form-group mb-3">
-      <label for="photo" class="form-label">Photo</label>
-      <input type="file" name="photo" ref="photoInput" class="form-control" @change="onPhotoChange"/>
-    </div>
-    <div class="form-group mb-3">
-      <img :src="photoUrl" class="img-thumbnail" v-if="photoUrl" />
-    </div>
-    <button type="submit" class="btn btn-primary">Register</button>
-  </form>
+</div>
+  
+
 </template>
 
 <script setup>
-  import { ref } from 'vue';
-
-  const firstName = ref('');
-  const lastName = ref('');
-  const username = ref('');
-  const password = ref('');
-  const email = ref('');
-  const location = ref('');
-  const biography = ref('');
-  const photoUrl = ref('');
-
-  const onPhotoChange = () => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      photoUrl.value = reader.result;
-    };
-  };
-
-  const saveEntry = () => {
-    const formData = new FormData();
-    formData.append('username', username.value);
-    formData.append('password', password.value);
-    formData.append('firstName', firstName.value);
-    formData.append('lastName', lastName.value);
-    formData.append('email', email.value);
-    formData.append('location', location.value);
-    formData.append('biography', biography.value);
-    formData.append('photo', refs.photoInput.files[0]);
-
-    fetch('api/v1/register', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Failed to register');
-        }
-      })
-      .then(data => {
-        console.log(data);
-        // do something with the response data
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  };
+  import { ref, onMounted  } from "vue";
+    let csrf_token = ref("");
+    onMounted(() => {
+        getCsrfToken();
+    });
+    function saveEntry()
+    {
+        let registrationForm = document.getElementById("RegistrationForm");
+        let form_data = new FormData(registrationForm);
+            fetch("/api/v1/register", {
+                method: 'POST',
+                body: form_data,
+                headers: 
+                {
+                    'X-CSRFToken': csrf_token.value
+                }
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log(data);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+    }
+    function getCsrfToken() 
+    {
+        fetch('/api/v1/csrf-token')
+            .then((response) => response.json())
+                .then((data) => {
+                    console.log(data.csrf_token);
+                    csrf_token.value = data.csrf_token;
+        })
+    }
 </script>
+
+
+<style>
+    .reg_form{
+        width: 400px;
+    }
+    .container-fluid{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    form{
+        padding: 2em;
+        box-shadow: 3px 3px 3px rgb(192, 202, 206);
+        border-radius: 5px;
+        border: 2px solid rgb(188, 201, 206);
+        background-color: rgb(255, 255, 255);
+    }
+    #btn{
+        width: 100%;
+        height: 40px;
+        border-radius: 5px;
+        border: none;
+        background-color: #3de909;
+        color: white;
+    }
+</style>
