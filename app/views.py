@@ -26,7 +26,7 @@ from flask_login import UserMixin
 
 
 def requires_auth(f):
-  @wraps(f)
+      @wraps(f)
   def decorated(*args, **kwargs):
     auth = request.headers.get('Authorization', None) # or request.cookies.get('token', None)
 
@@ -55,6 +55,7 @@ def requires_auth(f):
     return f(*args, **kwargs)
 
   return decorated
+
 
 
 
