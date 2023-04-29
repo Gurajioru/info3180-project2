@@ -14,7 +14,7 @@ let message = ref("Hello World! This is a VueJS and Flask Starter Template.")
               <h2 class="title">Photogram</h2>
             </div>
             
-            <hr>
+            
 
             <div class="text">
               <h4>Share photos of your favorite moments with friends, family and the world.</h4>
@@ -88,9 +88,7 @@ let message = ref("Hello World! This is a VueJS and Flask Starter Template.")
     border-radius: 5px;
     box-shadow: 3px 3px 3px rgb(191, 197, 199);
   }
-  hr{
-    /* width: 75%; */
-  }
+  
   .secondary{
     width: 600px;
     height: 400px;
