@@ -10,7 +10,7 @@ let message = ref("Hello World! This is a VueJS and Flask Starter Template.")
           <img :src="`/uploads/uyuni.jpg`" alt="Photogram" class="uyuni"/>
           <div class="secondary">
             <div class="together">
-              <img :src="`/uploads/camera.png`" alt="Photogram" class="camera"/>
+              <img :src="`/uploads/camera.jpg`" alt="Photogram" class="camera"/>
               <h2 class="title">Photogram</h2>
             </div>
             
