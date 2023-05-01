@@ -4,9 +4,20 @@
 
     const route = useRoute();
     
-    let user = ref(null);
-    let posts = ref(null);
-    let lenPosts = ref(null);
+    let user = ref([]);
+    let posts = ref([]);
+    let lenPosts = ref([]);
+    let csrf_token = ref("");
+    let isFollowing = ref(false);
+
+    function Follow(user) {
+        isFollowing.value = !isFollowing.value;
+        if (isFollowing.value) {
+          user.followers++;
+        } else {
+          user.followers--;
+        }
+    }
 
     onMounted(() =>{
     
@@ -63,7 +74,7 @@ function getProfilePhotoUrl(filename) {
           <p class="value">{{ user.followers }}</p>
           <p class="label">Followers</p>
         </div>
-        <button class="follow">Follow</button>
+        <button class="follow" :class="{ following: isFollowing }" @click="Follow(user)">{{ isFollowing ? 'Following' : 'Follow' }}</button>
       </div>
     </div>
     <div class = "posts-list">
@@ -86,7 +97,7 @@ function getProfilePhotoUrl(filename) {
 
   .userinfo {
     display: flex;
-    /* align-items: center; */
+
     padding: 20px;
     border: 1px solid #e6e6e6;
     background-color: #fff;
@@ -156,9 +167,9 @@ function getProfilePhotoUrl(filename) {
     border: none;
     border-radius: 3px;
     padding: 8px 16px;
-    font-size: 1em;
+
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+
   }
 
   .follow:hover {
@@ -173,7 +184,7 @@ function getProfilePhotoUrl(filename) {
 
   .userposts p {
     margin: 0;
-    font-size: 1.2em;
+
     font-weight: bold;
     color: #262626;
   }
@@ -189,7 +200,7 @@ function getProfilePhotoUrl(filename) {
 
 .instapost-card {
   box-sizing: border-box;
-  width: calc(33.33% - 10px);
+  width: calc(30% - 10px);
   margin-bottom: 20px;
   border-radius: 10px;
   overflow: hidden;
@@ -202,7 +213,7 @@ function getProfilePhotoUrl(filename) {
   overflow: hidden;
 }
 
-.instapost-image img {
+/* .instapost-image img {
   display: block;
   object-fit: cover;
 
@@ -211,6 +222,34 @@ function getProfilePhotoUrl(filename) {
   left: 0;
   width: 100%;
   height: 100%;
+} */
+
+.instapost-image img {
+  display: block;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+.follow {
+  background-color: #3897f0;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.following {
+  background-color: #1abc9c;
+}
+
+.follow:hover {
+  background-color: #1873bb;
+}
+
+.following:hover {
+  background-color: #16a085;
 }
 
 

@@ -18,6 +18,8 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
     {
+      path: '/posts',
+      name: 'Post',
       component: () => import('../views/AddPostForm.vue')
     },
     {
@@ -39,6 +41,11 @@ const router = createRouter({
     path: '/explore',
     name: 'ExploreView',
     component: () => import('../views/ExploreView.vue')
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: () => import('../views/LogoutView.vue')
     }
   ]
 })

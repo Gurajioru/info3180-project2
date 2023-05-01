@@ -9,10 +9,12 @@ let user = ref([]);
 let likes = ref([]);
 const route = useRoute();
 let loading = ref(false);
+let csrf_token = ref("");
 
 onMounted(() => {
     
     loading.value = true;
+    getCsrfToken();
 
     fetch("/api/v1/users")
     .then((response) => response.json())
@@ -61,6 +63,16 @@ onMounted(() => {
     
 });
 
+function getCsrfToken(){
+
+fetch('/ap1/v1/csrf-token')
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data);
+        csrf_token.value = data.csrf_token;
+    })
+}
+
 function getPostLikes(postId) {
   return fetch(`/api/v1/postlikes/${postId}`)
     .then((response) => response.json())
@@ -101,11 +113,10 @@ function getUser(userId) {
 
 <template>
     <div class="container">
-        <div class = "Post-Container">
+        <div class = "Post-Container">  
+            <a href="/posts"><button class="btn btn-primary">New Post</button></a>
             <PostCard :posts="post"  v-for="post in posts" :key="post.id" />
-        </div>
-        
+        </div>  
     </div>
-
 
 </template>
